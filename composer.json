@@ -1,0 +1,26 @@
+{
+    "name": "dfkgw/pear_mail_mime_ex",
+    "type": "library",
+    "description": "Decorator for Mail_mime class in pear::Mail_Mime package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daiji Fukagawa",
+            "email": "dfukagaw28@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "dfkgw\\" : "./"
+        }
+    },
+    "require": {
+        "ext-mbstring": "*",
+        "pear/mail_mime": "^1.10"
+    },
+    "require-dev": {
+        "phpmd/phpmd": "^2.6",
+        "friendsofphp/php-cs-fixer": "^2.4",
+        "phpunit/phpunit": "^6.2"
+    }
+}
