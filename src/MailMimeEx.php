@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace dfkgw;
+namespace dfkgw\MailMimeEx;
 
 use \Mail_mime;
 

@@ -1,5 +1,5 @@
 {
-    "name": "dfkgw/pear_mail_mime_ex",
+    "name": "dfkgw/mail-mime-ex",
     "type": "library",
     "description": "Decorator for Mail_mime class in pear::Mail_Mime package",
     "license": "MIT",
@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "dfkgw\\" : "./"
+            "dfkgw\\MailMimeEx\\" : "src/"
         }
     },
     "require": {

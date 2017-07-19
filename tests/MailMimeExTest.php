@@ -1,16 +1,17 @@
 <?php
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
-use dfkgw\MailMimeEx;
+namespace dfkgw\MailMimeEx;
+
+use \PHPUnit\Framework\TestCase;
+use \Mail_mime;
 
 final class MailMimeExTest extends TestCase
 {
     private static function initMessage(
         array $headers = array(),
         string $text = ''
-    ): Mail_mime
-    {
+    ): Mail_mime {
         // Set up a message
         $message = new Mail_mime("\r\n");
 
@@ -31,10 +32,11 @@ final class MailMimeExTest extends TestCase
         return $message;
     }
 
-    public function testCanLoad(): void
+    public function testConstructMailMimeEx(): void
     {
         $message = self::initMessage(
-            array(), ''
+            array(),
+            ''
         );
         $message = new MailMimeEx($message);
         $this->assertInstanceOf(MailMimeEx::class, $message);
@@ -62,11 +64,13 @@ final class MailMimeExTest extends TestCase
         $headers = $message->getHeaders();
         $this->assertArrayHasKey('Subject', $headers);
         $subject = $headers['Subject'];
-        $expected = join("\r\n ",
+        $expected = join(
+            "\r\n ",
             array(
                 '=?UTF-8?Q?=E3=83=86=E3=82=B9=E3=83=88=E3=83=A1=E3=83=BC=E3=83=AB?=',
                 '=?UTF-8?Q?=E3=81=A7=E3=81=99?='
-            ));
+            )
+        );
         $this->assertEquals($expected, $subject);
     }
 
