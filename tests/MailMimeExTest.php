@@ -4,48 +4,18 @@ declare(strict_types=1);
 namespace dfkgw\MailMimeEx;
 
 use \PHPUnit\Framework\TestCase;
-use \Mail_mime;
 
 final class MailMimeExTest extends TestCase
 {
-    private static function initMessage(
-        array $headers = array(),
-        string $text = ''
-    ): Mail_mime {
-        // Set up a message
-        $message = new Mail_mime("\r\n");
-
-        // Set message body
-        $message->setTXTBody($text);
-
-        // Set encodings
-        $message->setParam('text_encoding', '8bit');
-        $message->setParam('html_encoding', 'quoted-printable');
-        $message->setParam('head_encoding', 'quoted-printable');
-        $message->setParam('head_charset', 'UTF-8');
-        $message->setParam('html_charset', 'UTF-8');
-        $message->setParam('text_charset', 'UTF-8');
-
-        // Set headers
-        $message->headers($headers);
-
-        return $message;
-    }
-
     public function testConstructMailMimeEx(): void
     {
-        $message = self::initMessage(
-            array(),
-            ''
-        );
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx([], '');
         $this->assertInstanceOf(MailMimeEx::class, $message);
     }
 
     public function testCanGetSubject(): void
     {
-        $message = self::initMessage(array('Subject' => 'テストメールです'), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx(['Subject' => 'テストメールです'], 'こんにちは');
 
         // raw subject
         $headers = $message->getRawHeaders();
@@ -57,8 +27,7 @@ final class MailMimeExTest extends TestCase
 
     public function testCanEncodeSubject_utf8_q(): void
     {
-        $message = self::initMessage(array('Subject' => 'テストメールです'), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx(['Subject' => 'テストメールです'], 'こんにちは');
 
         // encoded subject
         $headers = $message->getHeaders();
@@ -76,8 +45,7 @@ final class MailMimeExTest extends TestCase
 
     public function testCanEncodeSubject_jis_b(): void
     {
-        $message = self::initMessage(array('Subject' => 'テストメールです'), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx(['Subject' => 'テストメールです'], 'こんにちは');
 
         // Change charset
         $message->getHeaderCharset();
@@ -95,8 +63,7 @@ final class MailMimeExTest extends TestCase
     //  which contains more characters that JIS X 0208)
     public function testCanEncodeSubject_cp932_b(): void
     {
-        $message = self::initMessage(array('Subject' => 'テストメ〜ル①㈱'), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx(['Subject' => 'テストメ〜ル①㈱'], 'こんにちは');
 
         // Change charset
         $message->getHeaderCharset();
@@ -114,8 +81,7 @@ final class MailMimeExTest extends TestCase
 
     public function testCanGetTextBody(): void
     {
-        $message = self::initMessage(array(), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx([], 'こんにちは');
 
         // raw body
         $text = $message->getTextBody();
@@ -125,8 +91,7 @@ final class MailMimeExTest extends TestCase
 
     public function testCanEncodeTextBody_jis(): void
     {
-        $message = self::initMessage(array(), 'こんにちは');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx([], 'こんにちは');
 
         $message->setParam('text_encoding', '7bit');
         $message->updateTextCharset('ISO-2022-JP');
@@ -142,8 +107,7 @@ final class MailMimeExTest extends TestCase
     // (NOT RECOMMENDED)
     public function testCanEncodeTextBody_cp932(): void
     {
-        $message = self::initMessage(array(), 'こんにちは①髙﨑');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx([], 'こんにちは①髙﨑');
 
         $message->setParam('text_encoding', '7bit');
         $message->updateTextCharset('ISO-2022-JP-MS');
@@ -160,8 +124,7 @@ final class MailMimeExTest extends TestCase
 
     public function testCanComposeFlowedBody(): void
     {
-        $message = self::initMessage(array(), 'Hello world!');
-        $message = new MailMimeEx($message);
+        $message = new MailMimeEx([], 'Hello world!');
 
         $message->setTextBody('Hello \r\nworld!');
         $message->setParam('text_encoding', '7bit');

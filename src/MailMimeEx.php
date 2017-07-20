@@ -9,9 +9,36 @@ class MailMimeEx
 {
     protected $message;
 
-    public function __construct(Mail_mime $message)
-    {
+    public function __construct(
+        array $headers = array(),
+        string $text = ''
+    ) {
+        $message = self::initMessage($headers, $text);
         $this->message = $message;
+    }
+
+    private static function initMessage(
+        array $headers = array(),
+        string $text = ''
+    ): Mail_mime {
+        // Set up a message
+        $message = new Mail_mime("\r\n");
+
+        // Set message body
+        $message->setTXTBody($text);
+
+        // Set encodings
+        $message->setParam('text_encoding', '8bit');
+        $message->setParam('html_encoding', 'quoted-printable');
+        $message->setParam('head_encoding', 'quoted-printable');
+        $message->setParam('head_charset', 'UTF-8');
+        $message->setParam('html_charset', 'UTF-8');
+        $message->setParam('text_charset', 'UTF-8');
+
+        // Set headers
+        $message->headers($headers);
+
+        return $message;
     }
 
     /* ======== Set/get MIME headers ======== */
