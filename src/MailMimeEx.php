@@ -174,11 +174,11 @@ class MailMimeEx
 
             // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
             $format = $this->getOption('format');
-            if (!empty($format)) {
-                $text_charset .= '; format=' . $format;
+            if (strtolower($format) == 'flowed') {
+                $text_charset .= '; format=flowed';
                 $delsp = $this->getOption('delsp');
-                if (!empty($delsp)) {
-                    $text_charset .= '; delsp=' . $delsp;
+                if (strtolower($delsp) == 'yes') {
+                    $text_charset .= '; delsp=yes';
                 }
             }
 
