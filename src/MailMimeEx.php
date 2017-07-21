@@ -8,6 +8,7 @@ use \Mail_mime;
 class MailMimeEx
 {
     protected $message;
+    protected $options;
 
     public function __construct(
         array $headers = array(),
@@ -15,6 +16,16 @@ class MailMimeEx
     ) {
         $message = self::initMessage($headers, $text);
         $this->message = $message;
+
+        $this->options = [];
+        $content_type = (string) self::getVal($headers, 'Content-Type');
+        $matches = [];
+        if (preg_match('/format=(\\w+)/i', $content_type, $matches, PREG_OFFSET_CAPTURE)) {
+            $this->options['format'] = $matches[1][0];
+        }
+        if (preg_match('/delsp=(\\w+)/i', $content_type, $matches, PREG_OFFSET_CAPTURE)) {
+            $this->options['delsp'] = $matches[1][0];
+        }
     }
 
     private static function initMessage(
@@ -61,6 +72,14 @@ class MailMimeEx
     }
 
     /**
+     * Get option parameter
+     */
+    public function getOption($key)
+    {
+        return self::getVal($this->options, $key);
+    }
+
+    /**
      * Set headers
      */
     public function setHeaders($headers)
@@ -83,6 +102,14 @@ class MailMimeEx
     public function setTextBody($text)
     {
         $this->message->setTXTBody($text);
+    }
+
+    /**
+     * Set option parameter
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
     }
 
     /* ======== Set/get parameters ======== */
@@ -179,5 +206,15 @@ class MailMimeEx
             $value_new = mb_convert_encoding($value, $to_encoding, $from_encoding);
         }
         return $value_new;
+    }
+
+    /*======== Util ========*/
+    private static function getVal(array $array, $key, $defaultValue = null)
+    {
+        if (array_key_exists($key, $array)) {
+            return $array[$key];
+        } else {
+            return $defaultValue;
+        }
     }
 }
