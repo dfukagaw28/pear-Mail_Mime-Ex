@@ -175,9 +175,9 @@ class MailMimeEx
             // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
             $format = $this->getOption('format');
             if (!empty($format)) {
-                $text_charset .= '; format=$format';
+                $text_charset .= '; format=' . $format;
                 if (!empty($delsp)) {
-                    $text_charset .= '; delsp=$delsp';
+                    $text_charset .= '; delsp=' . $delsp;
                 }
             }
 
