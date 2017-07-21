@@ -20,12 +20,22 @@ class MailMimeEx
         $this->options = [];
         $content_type = (string) self::getVal($headers, 'Content-Type');
         $matches = [];
-        if (preg_match('/format=(\\w+)/i', $content_type, $matches, PREG_OFFSET_CAPTURE)) {
-            $this->options['format'] = $matches[1][0];
+
+        // Set Format & DelSp parameter (RFC 3676)
+        $format = null;
+        $delsp = null;
+        if (preg_match('/format=(\\w+)/i', $content_type, $matches)) {
+            if (strtolower($matches[1]) == 'flowed') {
+                $format = 'flowed';
+                if (preg_match('/delsp=(\\w+)/i', $content_type, $matches)) {
+                    if (strtolower($matches[1]) == 'yes') {
+                        $delsp = 'yes';
+                    }
+                }
+            }
         }
-        if (preg_match('/delsp=(\\w+)/i', $content_type, $matches, PREG_OFFSET_CAPTURE)) {
-            $this->options['delsp'] = $matches[1][0];
-        }
+        $this->options['format'] = $format;
+        $this->options['delsp'] = $delsp;
     }
 
     private static function initMessage(
@@ -147,24 +157,31 @@ class MailMimeEx
 
     /* ======== Convert character encodings ======== */
 
-    public function updateHeaderCharset(string $new_charset, string $current_charset=null)
+    public function updateHeaderCharset(string $new_charset)
     {
-        if (empty($current_charset)) {
-            $current_charset = $this->getHeaderCharset();
-        }
+        $current_charset = $this->getHeaderCharset();
         if ($new_charset != $current_charset) {
             $this->setParam('head_charset', $new_charset);
             $this->_convertHeaders($new_charset, $current_charset);
         }
     }
 
-    public function updateTextCharset(string $new_charset, string $current_charset=null)
+    public function updateTextCharset(string $new_charset)
     {
-        if (empty($current_charset)) {
-            $current_charset = $this->getTextCharset();
-        }
+        $current_charset = $this->getTextCharset();
         if ($new_charset != $current_charset) {
-            $this->setParam('text_charset', $new_charset);
+            $text_charset = $new_charset;
+
+            // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
+            $format = $this->getOption('format');
+            if (!empty($format)) {
+                $text_charset .= '; format=$format';
+                if (!empty($delsp)) {
+                    $text_charset .= '; delsp=$delsp';
+                }
+            }
+
+            $this->setParam('text_charset', $text_charset);
             $this->_convertTextBody($new_charset, $current_charset);
         }
     }
