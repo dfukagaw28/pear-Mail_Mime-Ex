@@ -169,20 +169,20 @@ class MailMimeEx
     public function updateTextCharset(string $new_charset)
     {
         $current_charset = $this->getTextCharset();
-        if ($new_charset != $current_charset) {
-            $text_charset = $new_charset;
 
-            // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
-            $format = $this->getOption('format');
-            if (strtolower($format) == 'flowed') {
-                $text_charset .= '; format=flowed';
-                $delsp = $this->getOption('delsp');
-                if (strtolower($delsp) == 'yes') {
-                    $text_charset .= '; delsp=yes';
-                }
+        $text_charset = $new_charset;
+        // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
+        $format = $this->getOption('format');
+        if (strtolower($format) == 'flowed') {
+            $text_charset .= '; format=flowed';
+            $delsp = $this->getOption('delsp');
+            if (strtolower($delsp) == 'yes') {
+                $text_charset .= '; delsp=yes';
             }
+        }
+        $this->setParam('text_charset', $text_charset);
 
-            $this->setParam('text_charset', $text_charset);
+        if ($new_charset != $current_charset) {
             $this->_convertTextBody($new_charset, $current_charset);
         }
     }
