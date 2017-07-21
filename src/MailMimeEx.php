@@ -176,6 +176,7 @@ class MailMimeEx
             $format = $this->getOption('format');
             if (!empty($format)) {
                 $text_charset .= '; format=' . $format;
+                $delsp = $this->getOption('delsp');
                 if (!empty($delsp)) {
                     $text_charset .= '; delsp=' . $delsp;
                 }
