@@ -11,31 +11,17 @@ class MailMimeEx
     protected $options;
 
     public function __construct(
-        array $headers = array(),
+        $message,
         string $text = ''
     ) {
-        $message = self::initMessage($headers, $text);
-        $this->message = $message;
-
-        $this->options = [];
-        $content_type = (string) self::getVal($headers, 'Content-Type');
-        $matches = [];
-
-        // Set Format & DelSp parameter (RFC 3676)
-        $format = null;
-        $delsp = null;
-        if (preg_match('/format=(\\w+)/i', $content_type, $matches)) {
-            if (strtolower($matches[1]) == 'flowed') {
-                $format = 'flowed';
-                if (preg_match('/delsp=(\\w+)/i', $content_type, $matches)) {
-                    if (strtolower($matches[1]) == 'yes') {
-                        $delsp = 'yes';
-                    }
-                }
-            }
+        if ($message instanceof Mail_mime) {
+            $this->message = $message;
+            $headers = self::_getRawHeaders($message);
+        } else {
+            $headers = is_array($message) ? $message : [];
+            $this->message = self::initMessage($headers, $text);
         }
-        $this->options['format'] = $format;
-        $this->options['delsp'] = $delsp;
+        $this->options = self::initOptions($headers);
     }
 
     private static function initMessage(
@@ -62,6 +48,35 @@ class MailMimeEx
         return $message;
     }
 
+    private static function initOptions(array $headers)
+    {
+        $options = [];
+        $content_type = (string) self::getVal($headers, 'Content-Type');
+
+        // Set Format & DelSp parameter (RFC 3676)
+        $format = null;
+        $delsp = null;
+        $matches = [];
+        if (preg_match('/format=(\\w+)/i', $content_type, $matches)) {
+            if (strtolower($matches[1]) == 'flowed') {
+                $format = 'flowed';
+                if (preg_match('/delsp=(\\w+)/i', $content_type, $matches)) {
+                    if (strtolower($matches[1]) == 'yes') {
+                        $delsp = 'yes';
+                    }
+                }
+            }
+        }
+        $options['format'] = $format;
+        $options['delsp'] = $delsp;
+        return $options;
+    }
+
+    /**
+     * 
+     */
+    
+
     /* ======== Set/get MIME headers ======== */
 
     /**
@@ -77,7 +92,12 @@ class MailMimeEx
      */
     public function getRawHeaders()
     {
-        $message_array = (array)$this->message;
+        return self::_getRawHeaders($this->message);
+    }
+
+    protected static function _getRawHeaders(Mail_mime $message)
+    {
+        $message_array = (array)$message;
         return $message_array["\0*\0headers"];
     }
 
@@ -173,7 +193,7 @@ class MailMimeEx
         $text_charset = $new_charset;
         // Format=XXX and DelSp=XXX can appear in "text_charset" parameter
         $format = $this->getOption('format');
-        if (strtolower($format) == 'flowed') {
+        if (strtolower((string)$format) == 'flowed') {
             $text_charset .= '; format=flowed';
             $delsp = $this->getOption('delsp');
             if (strtolower($delsp) == 'yes') {
